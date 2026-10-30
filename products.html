@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المنتجات | 7SO STORE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { cairo: ['Cairo', 'sans-serif'] },
+                    colors: { darkBg: '#050505', cardBg: '#131c2e', accent: '#ef4444' }
+                }
+            }
+        }
+    </script>
+    <script>
+        let API_BASE = '/api/products';
+
+        async function loadProducts() {
+          try {
+            const res = await fetch(API_BASE + '?password=7so-admin-secret');
+            if (res.ok) { const data = await res.json(); products = data; }
+            else { const fallback = { "products": [{"id":1,"name":"تصميم سيرفر دسكورد احترافي","description":"تصميم كامل للسيرفر مع رتب، رومانات تنظيمية، حماية متقدمة، وبوتات أساسية جاهزة","category":"server","badge":"الأكثر طلبا","badgeType":"popular","price":"طلب خاص","features":[],"icon":"fa-brands fa-discord","hasImage":false,"imageUrl":null},{"id":2,"name":"بوت برودكاست","description":"ارتقِ بإدارة سيرفرك مع بوت برودكاست احترافي، مصمم لإرسال الإعلانات والتنبيهات بسرعة وسهولة. آمن، مستقر، ويعمل بكفاءة عالية على السيرفرات الصغيرة والكبيرة.","category":"bots","badge":"🚀 بوت احترافي","badgeType":"bot","price":"طلب خاص","features":[{"text":"Python","icon":"🐍"},{"text":"إرسال للجميع","icon":"🚀"},{"text":"ملكك بالكامل","icon":"👑"},{"text":"معرفة الـ Ping","icon":"📡"},{"text":"آمن ومستقر","icon":"🔒"},{"text":"قابل للتطوير","icon":"🔄"}],"icon":null,"hasImage":true,"imageUrl":"assets/broadcast-bot.png"},{"id":3,"name":"برمجة بوت دسكورد مخصص","description":"برمجة بوت بلغة بايثون أو جافاسكريبت حسب طلبك (تذاكر، ترحيب، حماية، أو ألعاب)","category":"bots","badge":"برمجة خاصة","badgeType":"custom","price":"تواصل للاتفاق","features":[{"text":"Python","icon":"🐍"},{"text":"JavaScript","icon":"⚡"},{"text":"مخصص","icon":"🔧"}],"icon":"fa-solid fa-robot","hasImage":false,"imageUrl":null},{"id":4,"name":"حزم الحماية والإدارة","description":"أنظمة حماية ضد التخريب (Anti-Nuke)، تفعيل نظام التحقق التلقائي، وإدارة الرتب الحساسة","category":"protection","badge":"حماية وإدارة","badgeType":"protection","price":"استشارة مجانية","features":[{"text":"Anti-Nuke","icon":"🛡️"},{"text":"تحقق تلقائي","icon":"✅"},{"text":"إدارة الرتب","icon":"👑"}],"icon":"fa-solid fa-shield-halved","hasImage":false,"imageUrl":null}] }; products = fallback.products; }
+          } catch(e) { /* keep empty */ }
+          renderProducts();
+        }
+
+        function escHtml(s) { return String(s).replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"'); }
+
+        function createProductCard(p, i) {
+          const delay = Math.min(i + 1, 4);
+          const bc = BADGE_COLORS[p.badgeType] || BADGE_COLORS.popular;
+
+          const card = document.createElement('div');
+          card.className = 'reveal cat-' + p.category + ' cat-item reveal-delay-' + delay + ' relative bg-cardBg border border-gray-800/80 rounded-2xl p-5 glow-hover transition-all duration-400 overflow-hidden flex flex-col';
+          card.dataset.category = p.category;
+          card.dataset.id = p.id;
+
+          // Num badge
+          const numBadge = document.createElement('span');
+          numBadge.className = 'num-badge';
+          numBadge.textContent = String(p.id).padStart(2, '0');
+          card.appendChild(numBadge);
+
+          // Card accent
+          const accent = document.createElement('div');
+          accent.className = 'card-accent';
+          card.appendChild(accent);
+
+          // Content wrapper
+          const content = document.createElement('div');
+          content.className = 'relative z-10 flex flex-col flex-grow';
+
+          // Image or icon
+          const mediaDiv = document.createElement('div');
+          if (p.hasImage && p.imageUrl) {
+            const imgWrap = document.createElement('div');
+            imgWrap.className = 'w-full h-44 rounded-xl overflow-hidden mb-4 border border-red-500/20 bg-black/40';
+            const img = document.createElement('img');
+            img.src = p.imageUrl;
+            img.alt = p.name;
+            img.className = 'w-full h-full object-contain';
+            img.loading = 'lazy';
+            imgWrap.appendChild(img);
+            mediaDiv.appendChild(imgWrap);
+          } else {
+            mediaDiv.className = 'w-14 h-14 rounded-xl bg-red-500/15 border border-red-500/20 flex items-center justify-center mb-4';
+            const icon = document.createElement('i');
+            icon.className = (p.icon || 'fa-solid fa-robot') + ' text-2xl text-red-400 icon-bounce';
+            mediaDiv.appendChild(icon);
+          }
+          content.appendChild(mediaDiv);
+
+          // Badge
+          const badgeDiv = document.createElement('div');
+          badgeDiv.className = 'mb-3';
+          const badgeSpan = document.createElement('span');
+          badgeSpan.className = bc + ' text-xs px-3 py-1 rounded-full font-bold border';
+          badgeSpan.textContent = p.badge;
+          badgeDiv.appendChild(badgeSpan);
+          content.appendChild(badgeDiv);
+
+          // Title
+          const title = document.createElement('h3');
+          title.className = 'text-lg font-bold mb-2';
+          title.textContent = p.name;
+          content.appendChild(title);
+
+          // Description
+          const desc = document.createElement('p');
+          desc.className = 'text-gray-400 text-sm mb-4 leading-relaxed flex-grow';
+          desc.textContent = p.description;
+          content.appendChild(desc);
+
+          // Features
+          if (p.features && p.features.length > 0) {
+            const featuresDiv = document.createElement('div');
+            featuresDiv.className = 'flex flex-wrap gap-2 mb-4';
+            p.features.forEach(f => {
+              const span = document.createElement('span');
+              span.className = 'text-xs bg-gray-800 text-gray-300 px-3 py-1 rounded-lg border border-gray-700';
+              span.textContent = f.icon + ' ' + f.text;
+              featuresDiv.appendChild(span);
+            });
+            content.appendChild(featuresDiv);
+          }
+
+          // Footer
+          const footer = document.createElement('div');
+          footer.className = 'flex items-center justify-between pt-4 border-t border-gray-800/60 mt-auto';
+
+          const priceDiv = document.createElement('div');
+          const priceLabel = document.createElement('span');
+          priceLabel.className = 'text-gray-500 text-xs';
+          priceLabel.textContent = 'السعر';
+          const priceValue = document.createElement('div');
+          priceValue.className = 'text-red-400 font-black text-lg';
+          priceValue.textContent = p.price;
+          priceDiv.appendChild(priceLabel);
+          priceDiv.appendChild(priceValue);
+          footer.appendChild(priceDiv);
+
+          const orderBtn = document.createElement('button');
+          orderBtn.className = 'btn-shine bg-red-500 hover:bg-red-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2';
+          orderBtn.onclick = function() { openOrderModal(p.name); };
+          const orderIcon = document.createElement('i');
+          orderIcon.className = 'fa-brands fa-discord';
+          orderBtn.appendChild(orderIcon);
+          orderBtn.appendChild(document.createTextNode(' اطلب الآن'));
+          footer.appendChild(orderBtn);
+
+          content.appendChild(footer);
+          card.appendChild(content);
+
+          return card;
+        }
+
+        function renderProducts(containerSelector) {
+          const container = document.querySelector(containerSelector || '#productsGrid');
+          if (!container) return;
+
+          const filtered = filterCurrentProducts();
+
+          if (filtered.length === 0) {
+            const emptyDiv = document.createElement('div');
+            emptyDiv.className = 'col-span-full text-center text-gray-500 py-16';
+            const emptyIcon = document.createElement('i');
+            emptyIcon.className = 'fa-solid fa-box-open text-5xl mb-4 opacity-30 block';
+            const emptyP = document.createElement('p');
+            emptyP.className = 'text-lg';
+            emptyP.textContent = 'لا توجد منتجات في هذا التصنيف';
+            emptyDiv.appendChild(emptyIcon);
+            emptyDiv.appendChild(emptyP);
+            container.appendChild(emptyDiv);
+            return;
+          }
+
+          // Clear and rebuild
+          container.innerHTML = '';
+          filtered.forEach((p, i) => {
+            const card = createProductCard(p, i);
+            container.appendChild(card);
+          });
+
+          // Observe reveals
+          const obs = new IntersectionObserver(entries => {
+            entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('active'); });
+          }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+          container.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+          updateCartUI();
+        }
+
+        function filterCurrentProducts() {
+          const activeBtn = document.querySelector('.cat-btn.active');
+          const cat = activeBtn ? activeBtn.dataset.cat : 'all';
+          if (cat === 'all') return products;
+          return products.filter(p => p.category === cat);
+        }
+
+        function initCategoryFilter() {
+          document.querySelectorAll('.cat-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+              document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+              btn.classList.add('active');
+              renderProducts();
+            });
+          });
+        }
+
+        function openOrderModal(productName) {
+          const el = document.getElementById('modalProductName'); if (el) el.textContent = productName;
+          const modal = document.getElementById('orderModal'); if (modal) modal.classList.remove('hidden');
+        }
+        function closeOrderModal() { const m = document.getElementById('orderModal'); if (m) m.classList.add('hidden'); }
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Cairo', sans-serif; background-color: #050505; color: #f3f4f6; overflow-x: hidden; }
+        body > *:first-child:not(header) { margin-top: 4.5rem; }
+        .grid-bg { position: fixed; inset: 0; background-image: linear-gradient(rgba(255,30,30,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,30,30,0.05) 1px, transparent 1px); background-size: 50px 50px; pointer-events: none; z-index: 0; }
+        .dots-bg { position: fixed; inset: 0; background-image: radial-gradient(circle, rgba(255,40,40,0.4) 1px, transparent 1.5px); background-size: 80px 80px; pointer-events: none; z-index: 0; animation: dotsDrift 20s linear infinite; }
+        @keyframes dotsDrift { 0% { background-position: 0 0; } 100% { background-position: 80px 80px; } }
+        .glow-spot { position: fixed; border-radius: 50%; filter: blur(80px); pointer-events: none; z-index: 0; }
+        .glow-spot-1 { width: 400px; height: 400px; background: rgba(239,68,68,0.08); top: -100px; right: -100px; animation: floatGlow 8s ease-in-out infinite; }
+        .glow-spot-2 { width: 300px; height: 300px; background: rgba(220,38,38,0.06); bottom: 10%; left: -50px; animation: floatGlow 12s ease-in-out infinite reverse; }
+        @keyframes floatGlow { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(30px,20px) scale(1.1); } }
+        .reveal { opacity: 0; transform: translateY(40px); transition: all 0.8s cubic-bezier(0.16,1,0.3,1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        .reveal-delay-1 { transition-delay: 0.1s; }
+        .reveal-delay-2 { transition-delay: 0.2s; }
+        .reveal-delay-3 { transition-delay: 0.3s; }
+        .reveal-delay-4 { transition-delay: 0.4s; }
+        .glow-effect { box-shadow: 0 0 25px rgba(239,68,68,0.25); }
+        .glow-hover { transition: all 0.4s cubic-bezier(0.16,1,0.3,1); }
+        .glow-hover:hover { box-shadow: 0 0 40px rgba(239,68,68,0.35), 0 0 80px rgba(239,68,68,0.1); transform: translateY(-5px); border-color: rgba(239,68,68,0.4); }
+        .btn-shine { position: relative; overflow: hidden; }
+        .btn-shine::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent); transition: left 0.5s ease; }
+        .btn-shine:hover::before { left: 100%; }
+        .card-accent { position: absolute; top: 0; right: 0; left: 0; height: 2px; background: linear-gradient(90deg, transparent, #ef4444, transparent); opacity: 0; transition: opacity 0.4s ease; }
+        .glow-hover:hover .card-accent { opacity: 1; }
+        .num-badge { font-size: 4rem; font-weight: 900; color: rgba(239,68,68,0.06); position: absolute; top: -10px; left: 15px; line-height: 1; pointer-events: none; }
+        .icon-bounce { animation: iconBounce 2s ease-in-out infinite; }
+        @keyframes iconBounce { 0%,100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        .cat-btn { padding: 0.5rem 1.25rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 700; border: 1px solid rgba(239,68,68,0.2); background: rgba(239,68,68,0.08); color: #fca5a5; cursor: pointer; transition: all 0.3s ease; }
+        .cat-btn:hover { background: rgba(239,68,68,0.2); border-color: rgba(239,68,68,0.5); }
+        .cat-btn.active { background: rgba(239,68,68,0.3); border-color: #ef4444; color: #fff; box-shadow: 0 0 15px rgba(239,68,68,0.3); }
+        .cat-item { transition: all 0.4s ease; }
+        .cat-item.hidden { display: none; }
+        main, header, section, footer { position: relative; z-index: 1; }
+        #particles { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+    </style>
+</head>
+<body>
+    <div class="grid-bg"></div>
+    <div class="dots-bg"></div>
+    <div class="glow-spot glow-spot-1"></div>
+    <div class="glow-spot glow-spot-2"></div>
+    <canvas id="particles"></canvas>
+
+    <!-- Header -->
+    <header class="sticky top-0 z-50" style="background-color: #050505; border-bottom: 1px solid rgba(31,41,55,0.5);">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-4">
+                <img src="assets/logo.webp" alt="Logo" class="w-12 h-12 object-cover rounded-full border-2 border-red-500 glow-effect">
+                <span class="text-2xl font-black tracking-wider text-white">7SO <span class="text-red-500">STORE</span></span>
+            </a>
+            <nav class="hidden md:flex items-center gap-6 font-semibold text-gray-300">
+                <a href="index.html" class="hover:text-red-400 transition whitespace-nowrap">الرئيسية</a>
+                <a href="products.html" class="text-red-400 whitespace-nowrap">منتجات دسكورد</a>
+                <a href="index.html#community" class="hover:text-red-400 transition whitespace-nowrap">مجتمع RX4</a>
+            </nav>
+            <a href="https://creators.sa/7so818" target="_blank" class="btn-shine bg-gradient-to-r from-pink-600 to-rose-600 text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 hover:opacity-90 transition shadow-lg shadow-rose-600/20">
+                <i class="fa-solid fa-heart"></i> دعم
+            </a>
+        </div>
+    </header>
+
+    <!-- Page Header -->
+    <section class="py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-10 reveal">
+                <a href="index.html" class="inline-flex items-center gap-2 text-gray-400 hover:text-red-400 transition mb-6 text-sm">
+                    <i class="fa-solid fa-arrow-right"></i> العودة للرئيسية
+                </a>
+                <span class="text-red-400 font-bold tracking-wider uppercase text-sm">خدمات برمجية واحترافية</span>
+                <h1 class="text-4xl sm:text-5xl font-black mt-2">متجر المنتجات</h1>
+                <p class="text-gray-400 mt-4 max-w-lg mx-auto text-sm">تصفح جميع منتجاتنا وخدماتنا المتوفرة لتطوير سيرفرك</p>
+            </div>
+
+            <!-- Category Filter -->
+            <div class="reveal flex flex-wrap justify-center gap-3 mb-12">
+                <button onclick="filterProducts('all')" class="cat-btn active" data-cat="all">الكل</button>
+                <button onclick="filterProducts('server')" class="cat-btn" data-cat="server">تصميم سيرفرات</button>
+                <button onclick="filterProducts('bots')" class="cat-btn" data-cat="bots">بوتات</button>
+                <button onclick="filterProducts('protection')" class="cat-btn" data-cat="protection">حماية وإدارة</button>
+            </div>
+
+            <!-- Products Grid -->
+            <div id="productsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                <div class="col-span-full text-center text-gray-500 py-12">
+                    <i class="fa-solid fa-spinner fa-spin text-3xl mb-3 block"></i>
+                    جاري تحميل المنتجات...
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Order Modal -->
+    <div id="orderModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden transition-all">
+        <div class="relative bg-cardBg border border-red-500/30 rounded-3xl p-6 sm:p-8 max-w-md w-full text-center shadow-2xl glow-effect">
+            <button onclick="closeOrderModal()" class="absolute top-4 left-4 text-gray-400 hover:text-white text-xl">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="w-20 h-20 bg-red-500/15 border border-red-500/30 rounded-2xl flex items-center justify-center text-4xl text-red-400 mx-auto mb-5 icon-bounce">
+                <i class="fa-solid fa-ticket"></i>
+            </div>
+            <h3 id="modalProductName" class="text-2xl font-black mb-3 text-white">طريقة الطلب</h3>
+            <p class="text-gray-300 text-sm mb-6 leading-relaxed">
+                لطلب هذا المنتج، يرجى التوجه إلى سيرفر الدسكورد الخاص بنا وافتح تكت (<span class="text-red-400 font-bold">Ticket</span>) مع فريق الدعم والإدارة.
+            </p>
+            <div class="flex flex-col gap-3">
+                <a href="https://discord.gg/gupu65sVck" target="_blank" class="btn-shine bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 px-6 rounded-xl transition-all flex items-center justify-center gap-3 text-base shadow-lg shadow-red-600/30">
+                    <i class="fa-brands fa-discord text-xl"></i> التوجه إلى الدسكورد وافتح تكت
+                </a>
+                <button onclick="closeOrderModal()" class="bg-gray-800 hover:bg-gray-700 text-gray-300 font-bold py-2.5 px-6 rounded-xl text-sm transition-all">
+                    إلغاء
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-darkBg border-t border-gray-800/50 py-10 text-center text-gray-500 text-sm mt-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-center gap-3 mb-4">
+                <img src="assets/logo.webp" alt="Logo" class="w-8 h-8 rounded-full object-cover border border-red-500/30">
+                <span class="text-white font-bold">7SO STORE</span>
+                <span class="text-gray-600">&bull;</span>
+                <span>جميع الحقوق محفوظة</span>
+            </div>
+            <p class="text-gray-600 text-xs">© 2026 7SO STORE — جميع الحقوق محفوظة</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        // Reveal on scroll
+        const reveals = document.querySelectorAll('.reveal');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('active'); });
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+        reveals.forEach(el => observer.observe(el));
+
+        // Particles
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
+        const particles = [];
+        for (let i = 0; i < 30; i++) {
+            particles.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, size: Math.random() * 2 + 0.5, speedX: (Math.random() - 0.5) * 0.5, speedY: (Math.random() - 0.5) * 0.5, opacity: Math.random() * 0.3 + 0.1 });
+        }
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.x += p.speedX; p.y += p.speedY;
+                if (p.x < 0) p.x = canvas.width; if (p.x > canvas.width) p.x = 0;
+                if (p.y < 0) p.y = canvas.height; if (p.y > canvas.height) p.y = 0;
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(239, 68, 68, ${p.opacity})`; ctx.fill();
+            });
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+    </script>
+</body>
+</html>
