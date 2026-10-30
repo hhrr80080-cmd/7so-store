@@ -1,103 +1,104 @@
-const fs = require('fs');
-const path = require('path');
-
-const PRODUCTS_PATH = path.join(__dirname, '..', 'data', 'products.json');
-const SETTINGS_PATH = path.join(__dirname, '..', 'data', 'settings.json');
-const DEFAULT_PASSWORD = '7so-admin-secret';
-
-function readProducts() {
-  try {
-    const raw = fs.readFileSync(PRODUCTS_PATH, 'utf8');
-    return JSON.parse(raw);
-  } catch { return []; }
-}
-
-function writeProducts(products) {
-  fs.writeFileSync(PRODUCTS_PATH, JSON.stringify(products, null, 2));
-}
-
-function readSettings() {
-  try {
-    const s = fs.readFileSync(SETTINGS_PATH, 'utf8');
-    const parsed = JSON.parse(s);
-    return (typeof parsed === 'object' && parsed !== null) ? parsed : { storeName: '7SO STORE', discordLink: 'https://discord.gg/gupu65sVck' };
-  } catch {
-    return { storeName: '7SO STORE', discordLink: 'https://discord.gg/gupu65sVck' };
+const productsData = [
+  {
+    "id": 1,
+    "name": "تصميم سيرفر دسكورد احترافي",
+    "description": "تصميم كامل للسيرفر مع رتب، رومانات تنظيمية، حماية متقدمة، وبوتات أساسية جاهزة",
+    "category": "server",
+    "badge": "الأكثر طلبا",
+    "badgeType": "popular",
+    "price": "طلب خاص",
+    "features": [],
+    "icon": "fa-brands fa-discord",
+    "hasImage": false,
+    "imageUrl": null
+  },
+  {
+    "id": 2,
+    "name": "بوت برودكاست",
+    "description": "ارتقِ بإدارة سيرفرك مع بوت برودكاست احترافي، مصمم لإرسال الإعلانات والتنبيهات بسرعة وسهولة. آمن، مستقر، ويعمل بكفاءة عالية على السيرفرات الصغيرة والكبيرة.",
+    "category": "bots",
+    "badge": "🚀 بوت احترافي",
+    "badgeType": "bot",
+    "price": "طلب خاص",
+    "features": [
+      { "text": "Python", "icon": "🐍" },
+      { "text": "إرسال للجميع", "icon": "🚀" },
+      { "text": "ملكك بالكامل", "icon": "👑" },
+      { "text": "معرفة الـ Ping", "icon": "📡" },
+      { "text": "آمن ومستقر", "icon": "🔒" },
+      { "text": "قابل للتطوير", "icon": "🔄" }
+    ],
+    "icon": null,
+    "hasImage": true,
+    "imageUrl": "assets/broadcast-bot.png"
+  },
+  {
+    "id": 3,
+    "name": "برمجة بوت دسكورد مخصص",
+    "description": "برمجة بوت بلغة بايثون أو جافاسكريبت حسب طلبك (تذاكر، ترحيب، حماية، أو ألعاب)",
+    "category": "bots",
+    "badge": "برمجة خاصة",
+    "badgeType": "custom",
+    "price": "تواصل للاتفاق",
+    "features": [
+      { "text": "Python", "icon": "🐍" },
+      { "text": "JavaScript", "icon": "⚡" },
+      { "text": "مخصص", "icon": "🔧" }
+    ],
+    "icon": "fa-solid fa-robot",
+    "hasImage": false,
+    "imageUrl": null
+  },
+  {
+    "id": 4,
+    "name": "حزم الحماية والإدارة",
+    "description": "أنظمة حماية ضد التخريب (Anti-Nuke)، تفعيل نظام التحقق التلقائي، وإدارة الرتب الحساسة",
+    "category": "protection",
+    "badge": "حماية وإدارة",
+    "badgeType": "protection",
+    "price": "استشارة مجانية",
+    "features": [
+      { "text": "Anti-Nuke", "icon": "🛡️" },
+      { "text": "تحقق تلقائي", "icon": "✅" },
+      { "text": "إدارة الرتب", "icon": "👑" }
+    ],
+    "icon": "fa-solid fa-shield-halved",
+    "hasImage": false,
+    "imageUrl": null
+  },
+  {
+    "id": 5,
+    "name": "ضبط سيرفر دسكورد كامل",
+    "description": "خدمة شاملة لضبط سيرفرك من الصفر - تصميم وتنظيم وحماية كاملة لتكون جاهزاً للاستخدام الاحترافي من أول يوم",
+    "category": "server",
+    "badge": "✨ ضبـط كامل",
+    "badgeType": "popular",
+    "price": "حسب الطلب",
+    "features": [
+      { "text": "تصميم رومات فخم", "icon": "🎨" },
+      { "text": "إعداد البوتات والأنظمة", "icon": "⚙️" },
+      { "text": "حماية قوية ضد التخريب", "icon": "🛡️" },
+      { "text": "تنظيم الرتب والصلاحيات", "icon": "👥" },
+      { "text": "نظام تذاكر ودعم فني", "icon": "💬" },
+      { "text": "سجلات وإحصائيات متقدمة", "icon": "📊" },
+      { "text": "نظام ترحيب ذكي", "icon": "🤝" },
+      { "text": "إيموجيات وستيكرات مخصصة", "icon": "🎉" },
+      { "text": "ربط السوشال ميديا", "icon": "🔗" },
+      { "text": "رومات ألعاب ومجتمع", "icon": "🎮" },
+      { "text": "تحسين الشكل العام", "icon": "✨" }
+    ],
+    "icon": "fa-solid fa-sliders",
+    "hasImage": false,
+    "imageUrl": null
   }
-}
+];
 
-function writeSettings(settings) {
-  fs.writeFileSync(SETTINGS_PATH, JSON.stringify(settings, null, 2));
-}
-
-exports.handler = async (event, context) => {
-  const method = event.httpMethod || 'GET';
-  const query = event.queryStringParameters || {};
-  const body = event.body || '{}';
-  const pw = query.password || '';
-  const target = query._target;
-
-  function respond(code, data) {
-    return { statusCode: code, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) };
+module.exports = (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  const { _target } = req.query || {};
+  if (_target === 'settings') {
+    return res.status(200).json({ storeName: '7SO STORE', discordLink: 'https://discord.gg/gupu65sVck' });
   }
-
-  function checkAuth() {
-    if ((method === 'POST' || method === 'PUT' || method === 'DELETE') && pw !== DEFAULT_PASSWORD) {
-      return respond(403, { error: 'Unauthorized' });
-    }
-    return null;
-  }
-
-  try {
-    if (method === 'GET') {
-      if (target === 'settings') {
-        return respond(200, readSettings());
-      }
-      return respond(200, readProducts());
-    }
-
-    let parsed;
-    try { parsed = JSON.parse(body); } catch (e) { return respond(400, { error: 'Invalid JSON' }); }
-
-    if (method === 'POST') {
-      const auth = checkAuth();
-      if (auth) return auth;
-      if (target === 'settings') {
-        writeSettings(parsed);
-        return respond(200, { success: true });
-      }
-      const items = Array.isArray(parsed) ? parsed : [parsed];
-      const existing = readProducts();
-      const ids = new Set(existing.map(p => p.id));
-      items.forEach(p => { if (!ids.has(p.id)) existing.push(p); });
-      writeProducts(existing);
-      return respond(200, { success: true });
-    }
-
-    if (method === 'PUT') {
-      const auth = checkAuth();
-      if (auth) return auth;
-      if (!parsed.id) return respond(400, { error: 'Product ID required' });
-      const existing = readProducts();
-      const idx = existing.findIndex(p => p.id === parsed.id);
-      if (idx >= 0) existing[idx] = { ...existing[idx], ...parsed };
-      else existing.push(parsed);
-      writeProducts(existing);
-      return respond(200, { success: true });
-    }
-
-    if (method === 'DELETE') {
-      const auth = checkAuth();
-      if (auth) return auth;
-      const id = query.id || '';
-      if (!id) return respond(400, { error: 'Product ID required' });
-      writeProducts(readProducts().filter(p => String(p.id) !== String(id)));
-      return respond(200, { success: true });
-    }
-
-    return respond(405, { error: 'Method not allowed' });
-  } catch (err) {
-    console.error('API error:', err);
-    return respond(500, { error: err.message });
-  }
+  return res.status(200).json(productsData);
 };
